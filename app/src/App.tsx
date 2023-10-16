@@ -17,7 +17,7 @@ function App() {
     const fetchData = async () => {
       try {
         // TODO: adjust to use your API server URL here
-        const result = await axios.get("http://localhost:4000/api/meta");
+        const result = await axios.get("http://localhost:8000/api/meta");
         setMeta(result.data);
       } catch (e) {
         // TODO: This will always fail since we have no server implemented
@@ -44,11 +44,12 @@ function App() {
       },
     };
     // TODO: implement API
-    // await axios.post("api/upload", formData, config).then((response) => {
-    //   setDownloadUrl(response.data.url);
-    // });
-    // TODO: Return a URL to the user
-    setDownloadUrl("http://localhost:4000/data/qwop");
+    await axios.post("http://localhost:8000/api/upload", formData, config).then((response) => {
+      console.log(response)
+      setDownloadUrl(response.data.url);
+    });
+    // // TODO: Return a URL to the user
+    // setDownloadUrl("http://localhost:4000/data/qwop");
   };
 
   return (
