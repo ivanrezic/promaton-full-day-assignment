@@ -14,4 +14,3 @@ class Config:
     mongo_port: int = int(os.environ["MONGO_PORT"])
     mongo_db: str = os.environ["MONGO_DB"]
     mongo_collection: str = os.environ["MONGO_COLLECTION"]
-    spark_app_name: str = os.getenv("SPARK_APP_NAME", "SocketToMongo")
