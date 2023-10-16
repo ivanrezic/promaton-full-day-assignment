@@ -1,0 +1,22 @@
+image:
+  name: #local image or remote image
+  tag: latest
+
+dbImage:
+  name: mongo
+  tag: 7.0
+
+deployment:
+  replicas: 2
+
+application:
+  port: 8080
+  name: backend
+  servicePort: 80
+
+database:
+  name: mongo
+  host: mongo
+  port: 27017
+  db: gifs
+  collection: metadata

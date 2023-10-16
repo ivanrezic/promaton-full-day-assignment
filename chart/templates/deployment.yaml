@@ -1,0 +1,35 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ .Values.application.name }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.application.name }}
+  replicas: {{ .Values.deployment.replicas }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.application.name }}
+    spec:
+      containers:
+        - name: {{ .Values.application.name }}
+          image: {{ .Values.image.name }}:{{ .Values.image.tag }}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: {{ .Values.application.port }}
+          env:
+            - name: MONGO_HOST
+              value: {{ .Values.database.host }}
+            - name: MONGO_PORT
+              value: {{ .Values.database.port }}
+            - name: MONGO_DB
+              value: {{ .Values.database.db }}
+            - name: MONGO_COLLECTION
+              value: {{ .Values.database.collection }}
+
+        - name: {{ .Values.database.name }}
+          image: {{ .Values.dbImage.name }}:{{ .Values.dbImage.tag }}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: {{ .Values.database.port }}

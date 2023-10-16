@@ -1,0 +1,4 @@
+apiVersion: v2
+name: promaton-challenge
+description: A Helm chart for promaton-challenge
+version: 1.0.0
