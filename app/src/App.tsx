@@ -48,8 +48,6 @@ function App() {
       console.log(response)
       setDownloadUrl(response.data.url);
     });
-    // // TODO: Return a URL to the user
-    // setDownloadUrl("http://localhost:4000/data/qwop");
   };
 
   return (
