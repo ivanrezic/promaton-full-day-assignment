@@ -8,7 +8,7 @@ from fastapi.responses import FileResponse
 
 import utils.database
 from config import Config as cfg
-from utils import processing
+from utils import processing, web
 
 app = FastAPI()
 
@@ -41,13 +41,7 @@ async def get_meta():
 
 @app.post("/api/upload")
 async def upload_file(file: UploadFile, request: Request):
-    if not file:
-        raise HTTPException(status_code=400, detail="File not provided")
-
-    # Check if the uploaded file is a GIF
-    if file.content_type != "image/gif":
-        raise HTTPException(status_code=400, detail="File is not a GIF")
-
+    web.check_file_validity(file)
     gif = Image.open(BytesIO(await file.read()))
 
     unique_id = uuid.uuid4()
@@ -63,7 +57,7 @@ async def upload_file(file: UploadFile, request: Request):
 
 @app.get("/api/download/{unique_id}")
 async def gif_to_frames(unique_id: str):
-    zip_path = f"{cfg.zip_files_dir}/{unique_id}.zip"
+    zip_path = f"{cfg.tmp_files_dir}/{unique_id}.zip"
 
     mongo_db_manager = utils.database.get_mongo_db_manager()
     utils.database.increase_metadata_download_count(mongo_db_manager)
@@ -71,23 +65,25 @@ async def gif_to_frames(unique_id: str):
     return FileResponse(path=zip_path, filename=f"{cfg.return_zip_name}.zip")
 
 
-@app.post("/api/speedup")
-async def upload_file(file: UploadFile, request: Request):
-    if not file:
-        raise HTTPException(status_code=400, detail="File not provided")
-
-    # Check if the uploaded file is a GIF
-    if file.content_type != "image/gif":
-        raise HTTPException(status_code=400, detail="File is not a GIF")
-
+@app.post("/api/change_rate")
+async def change_rate(file: UploadFile, factor: float = 2):
+    web.check_file_validity(file)
     gif = Image.open(BytesIO(await file.read()))
 
     unique_id = uuid.uuid4()
-    processing.gif_to_frames_zip(gif, unique_id)
+    output_path = f"{cfg.tmp_files_dir}/{unique_id}.gif"
 
-    mongo_db_manager = utils.database.get_mongo_db_manager()
-    utils.database.write_metadata_to_db(gif, mongo_db_manager)
+    processing.increase_framerate(gif, output_path, factor=factor)
+    return FileResponse(path=output_path, filename=f"{cfg.return_increased_framerate_gif_name}.gif")
 
-    return {
-        "url": f"{request.base_url}api/download/{unique_id}",
-    }
+
+@app.post("/api/reverse")
+async def change_rate(file: UploadFile):
+    web.check_file_validity(file)
+    gif = Image.open(BytesIO(await file.read()))
+
+    unique_id = uuid.uuid4()
+    output_path = f"{cfg.tmp_files_dir}/{unique_id}.gif"
+
+    processing.reverse(gif, output_path)
+    return FileResponse(path=output_path, filename=f"{cfg.return_reverted_gif_name}.gif")
